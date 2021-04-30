@@ -121,7 +121,7 @@ stages:
                   content = json.dumps(build, separators=(',', ':'))
                   build_messages.append(content)
                   build_url = build['resource']['url']
-                  #build_content = get_response(build_url)
+                  build_content = get_response(build_url)
                   #if not content:
                   #    print("Skipped the message for no build content, the message: {}".format(msg_content))
                   #    continue
