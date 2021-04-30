@@ -96,7 +96,7 @@ stages:
 
           print("test2")
           queue_client = QueueClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING, QUEUE_NAME)
-          messages = queue_client.receive_messages(messages_per_page=MESSAGE_PER_PAGE, visibility_timeout=0)
+          messages = queue_client.receive_messages(messages_per_page=MESSAGE_PER_PAGE, visibility_timeout=10)
           page = 0
           print("test3")
           for msg_batch in messages.by_page():
