@@ -125,11 +125,11 @@ stages:
                   if not build_content:
                       print("Skipped the message for no build content, the message: {}".format(msg_content))
                       continue
-                  #build_info = json.loads(build_content)
-                  #build_infos.append(build_content)
-                  #timeline_url = build_info['_links']['timeline']['href']
-                  #logs = get_build_logs(timeline_url)
-                  #build_logs += logs
+                  build_info = json.loads(build_content)
+                  build_infos.append(build_content)
+                  timeline_url = build_info['_links']['timeline']['href']
+                  logs = get_build_logs(timeline_url)
+                  build_logs += logs
               #upload_to_blob(build_messages, BUILD_MESSAGES)
               #upload_to_blob(build_infos, BUILD_INFOS)
               #upload_to_blob(build_logs, BUILD_LOGS)
