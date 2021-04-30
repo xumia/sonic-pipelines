@@ -9,6 +9,9 @@ pr: none
 schedules:
 - cron: "0 * * * *"
   displayName: Hourly build
+  branches:
+    include:
+    - main
 
 name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 
