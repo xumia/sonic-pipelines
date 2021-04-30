@@ -99,6 +99,42 @@ stages:
           messages = queue_client.receive_messages(messages_per_page=MESSAGE_PER_PAGE, visibility_timeout=0)
           page = 0
           print("test3")
+          for msg_batch in messages.by_page():
+              page = page + 1
+              if page > MAX_PAGE_COUNT:
+                  break
+              local_file_name = datetime.datetime.now().strftime("_%Y%m%d-%H%M%S-%f") + '.json'
+              build_messages = []
+              build_results = []
+              msgs = []
+              build_infos = []
+              build_logs = []
+              msg_count = 0
+              for msg in msg_batch:
+                  msg_count = msg_count + 1
+                  print("process message {} on page {}, current log count {}".format(msg_count, page, len(build_logs)))
+                  msgs.append(msg)
+                  msg_content = base64.b64decode(msg.content)
+                  build = json.loads(msg_content)
+                  content = json.dumps(build, separators=(',', ':'))
+                  build_messages.append(content)
+                  build_url = build['resource']['url']
+                  build_content = get_response(build_url)
+                  if not content:
+                      print("Skipped the message for no build content, the message: {}".format(msg_content))
+                      continue
+                  build_info = json.loads(build_content)
+                  build_infos.append(build_content)
+                  timeline_url = build_info['_links']['timeline']['href']
+                  logs = get_build_logs(timeline_url)
+                  build_logs += logs
+              upload_to_blob(build_messages, BUILD_MESSAGES)
+              upload_to_blob(build_infos, BUILD_INFOS)
+              upload_to_blob(build_logs, BUILD_LOGS)
+              for msg in msgs:
+                  queue_client.delete_message(msg)
+      env:
+        AZURE_STORAGE_CONNECTION_STRING: '$(AZURE_STORAGE_CONNECTION_STRING)'
     - task: PythonScript@0
       displayName: Publish SONiC Azure Pipelies telemetry
       inputs:
@@ -162,6 +198,8 @@ stages:
               return results
 
           print("test2")
+          if 1 == 1:
+            return
           queue_client = QueueClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING, QUEUE_NAME)
           messages = queue_client.receive_messages(messages_per_page=MESSAGE_PER_PAGE, visibility_timeout=3600)
           page = 0
