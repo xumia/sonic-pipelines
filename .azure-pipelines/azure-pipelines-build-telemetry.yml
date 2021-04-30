@@ -115,21 +115,21 @@ stages:
                   print("test5")
                   msg_count = msg_count + 1
                   print("process message {} on page {}, current log count {}".format(msg_count, page, len(build_logs)))
-                  msgs.append(msg)
-                  msg_content = base64.b64decode(msg.content)
-                  build = json.loads(msg_content)
-                  content = json.dumps(build, separators=(',', ':'))
-                  build_messages.append(content)
-                  build_url = build['resource']['url']
-                  build_content = get_response(build_url)
-                  if not content:
-                      print("Skipped the message for no build content, the message: {}".format(msg_content))
-                      continue
-                  build_info = json.loads(build_content)
-                  build_infos.append(build_content)
-                  timeline_url = build_info['_links']['timeline']['href']
-                  logs = get_build_logs(timeline_url)
-                  build_logs += logs
+                  #msgs.append(msg)
+                  #msg_content = base64.b64decode(msg.content)
+                  #build = json.loads(msg_content)
+                  #content = json.dumps(build, separators=(',', ':'))
+                  #build_messages.append(content)
+                  #build_url = build['resource']['url']
+                  #build_content = get_response(build_url)
+                  #if not content:
+                  #    print("Skipped the message for no build content, the message: {}".format(msg_content))
+                  #    continue
+                  #build_info = json.loads(build_content)
+                  #build_infos.append(build_content)
+                  #timeline_url = build_info['_links']['timeline']['href']
+                  #logs = get_build_logs(timeline_url)
+                  #build_logs += logs
               #upload_to_blob(build_messages, BUILD_MESSAGES)
               #upload_to_blob(build_infos, BUILD_INFOS)
               #upload_to_blob(build_logs, BUILD_LOGS)
