@@ -52,6 +52,53 @@ stages:
           MAX_PAGE_COUNT = 30
           print("test1")
           blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
+
+          # Upload a list of lines to blob
+          def upload_to_blob(lines, blob_prefix, file_prefix=""):
+            now = datetime.datetime.now()
+            local_file_name = file_prefix + now.strftime("_%Y%m%d-%H%M%S-%f") + '.json'
+            with open(local_file_name, "w") as file:
+              count = file.write('\n'.join(lines))
+            blob_file_name = blob_prefix + now.strftime("/%Y/%m/%d/") + local_file_name
+            blob_client = blob_service_client.get_blob_client(container=CONTAINER, blob=blob_file_name)
+            with open(local_file_name, "rb") as data:
+              blob_client.upload_blob(data)
+            os.remove(local_file_name)
+
+          # Download the web content from the url
+          def get_response(url):
+              for i in range(0, 3):
+                  try:
+                    response = request.urlopen(url)
+                    data=response.read()
+                    encoding = response.info().get_content_charset('utf-8')
+                    return data.decode(encoding)
+                  except Exception as e:
+                    print(e)
+                    time.sleep(10)
+              raise Exception("failed to get response from {0}".format(url))
+
+          # Get the build logs
+          def get_build_logs(timeline_url):
+              timeline_content =  get_response(timeline_url)
+              if not timeline_content:
+                  return []
+              records = json.loads(timeline_content)['records']
+              results = []
+              for record in records:
+                  record['content'] = ""
+                  if record['log']:
+                      log_url = record['log']['url']
+                      log = get_response(log_url)
+                      record['content'] = log
+                  results.append(json.dumps(record))
+              return results
+
+          print("test2")
+          queue_client = QueueClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING, QUEUE_NAME)
+          messages = queue_client.receive_messages(messages_per_page=MESSAGE_PER_PAGE, visibility_timeout=0)
+          page = 0
+          print("test3")
     - task: PythonScript@0
       displayName: Publish SONiC Azure Pipelies telemetry
       inputs:
