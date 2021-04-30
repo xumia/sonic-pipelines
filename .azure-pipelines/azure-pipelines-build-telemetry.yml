@@ -102,7 +102,6 @@ stages:
                   break
               local_file_name = datetime.datetime.now().strftime("_%Y%m%d-%H%M%S-%f") + '.json'
               build_messages = []
-              build_results = []
               msgs = []
               build_infos = []
               build_logs = []
