@@ -23,9 +23,6 @@ stages:
   - job: Build
     timeoutInMinutes: 120
     steps:
-    - script: |
-        echo "Build"
-      displayName: Build script
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.x'
@@ -33,11 +30,9 @@ stages:
         architecture: 'x64'
     - script: |
         pip install azure-storage-queue azure-storage-blob
-        pip --version
-        pip list
-        python --version
-      displayName: test
+      displayName: Install build tools
     - task: PythonScript@0
+      displayName: Publish SONiC Azure Pipelies telemetry
       inputs:
         scriptSource: 'inline'
         script: |
