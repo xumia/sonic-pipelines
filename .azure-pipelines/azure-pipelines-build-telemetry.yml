@@ -101,6 +101,7 @@ stages:
           print("test3")
           for msg_batch in messages.by_page():
               page = page + 1
+              print("test4")
               if page > MAX_PAGE_COUNT:
                   break
               local_file_name = datetime.datetime.now().strftime("_%Y%m%d-%H%M%S-%f") + '.json'
