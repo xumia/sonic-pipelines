@@ -49,6 +49,7 @@ stages:
           BUILD_LOGS = 'buildlogs'
           MESSAGE_PER_PAGE = 10
           MAX_PAGE_COUNT = 30
+          print("test1")
           blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
 
           # Upload a list of lines to blob
@@ -92,9 +93,11 @@ stages:
                   results.append(json.dumps(record))
               return results
 
+          print("test2")
           queue_client = QueueClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING, QUEUE_NAME)
           messages = queue_client.receive_messages(messages_per_page=MESSAGE_PER_PAGE, visibility_timeout=3600)
           page = 0
+          print("test2")
           for msg_batch in messages.by_page():
               page = page + 1
               if page > MAX_PAGE_COUNT:
