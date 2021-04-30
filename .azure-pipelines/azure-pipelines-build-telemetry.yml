@@ -32,6 +32,27 @@ stages:
         pip install azure-storage-queue azure-storage-blob
       displayName: Install build tools
     - task: PythonScript@0
+      displayName: Publish SONiC telemetry
+      inputs:
+        scriptSource: 'inline'
+        script: |
+          import datetime, base64, json, time, os
+          from urllib import request
+          from azure.storage.queue import QueueClient
+          from azure.storage.blob import BlobServiceClient
+
+          print("test0")
+          QUEUE_NAME="builds"
+          CONTAINER="build"
+          AZURE_STORAGE_CONNECTION_STRING='$(AZURE_STORAGE_CONNECTION_STRING)'
+          BUILD_MESSAGES = 'buildmessages'
+          BUILD_INFOS = 'builds'
+          BUILD_LOGS = 'buildlogs'
+          MESSAGE_PER_PAGE = 10
+          MAX_PAGE_COUNT = 30
+          print("test1")
+          blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
+    - task: PythonScript@0
       displayName: Publish SONiC Azure Pipelies telemetry
       inputs:
         scriptSource: 'inline'
