@@ -111,7 +111,8 @@ stages:
               build_infos = []
               build_logs = []
               msg_count = 0
-              for msg in msg_batch:
+              #for msg in msg_batch:
+              if 1 == 2:
                   msg_count = msg_count + 1
                   print("process message {} on page {}, current log count {}".format(msg_count, page, len(build_logs)))
                   msgs.append(msg)
@@ -129,9 +130,9 @@ stages:
                   timeline_url = build_info['_links']['timeline']['href']
                   logs = get_build_logs(timeline_url)
                   build_logs += logs
-              upload_to_blob(build_messages, BUILD_MESSAGES)
-              upload_to_blob(build_infos, BUILD_INFOS)
-              upload_to_blob(build_logs, BUILD_LOGS)
+              #upload_to_blob(build_messages, BUILD_MESSAGES)
+              #upload_to_blob(build_infos, BUILD_INFOS)
+              #upload_to_blob(build_logs, BUILD_LOGS)
               #for msg in msgs:
               #    queue_client.delete_message(msg)
       env:
