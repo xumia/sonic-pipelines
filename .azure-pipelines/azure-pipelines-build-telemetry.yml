@@ -132,8 +132,8 @@ stages:
               upload_to_blob(build_messages, BUILD_MESSAGES)
               upload_to_blob(build_infos, BUILD_INFOS)
               upload_to_blob(build_logs, BUILD_LOGS)
-              for msg in msgs:
-                  queue_client.delete_message(msg)
+              #for msg in msgs:
+              #    queue_client.delete_message(msg)
       env:
         AZURE_STORAGE_CONNECTION_STRING: '$(AZURE_STORAGE_CONNECTION_STRING)'
     - task: PythonScript@0
