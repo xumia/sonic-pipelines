@@ -112,6 +112,7 @@ stages:
               build_logs = []
               msg_count = 0
               for msg in msg_batch:
+                  print("test5")
                   msg_count = msg_count + 1
                   print("process message {} on page {}, current log count {}".format(msg_count, page, len(build_logs)))
                   msgs.append(msg)
