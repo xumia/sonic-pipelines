@@ -79,7 +79,7 @@ stages:
               raise Exception("failed to get response from {0}".format(url))
 
           # Get the build logs
-          def get_build_logs(timeline_url):
+          def get_build_logs(timeline_url, build_info):
               timeline_content =  get_response(timeline_url)
               if not timeline_content:
                   return []
@@ -87,6 +87,9 @@ stages:
               results = []
               for record in records:
                   record['content'] = ""
+                  record['buildId'] = build_info['id']
+                  record['definitionId'] = build_info['definitionId']
+                  record['definitionName'] = build_info['definitionName']
                   if record['log']:
                       log_url = record['log']['url']
                       log = get_response(log_url)
@@ -121,9 +124,11 @@ stages:
                       print("Skipped the message for no build content, the message: {}".format(msg_content))
                       continue
                   build_info = json.loads(build_content)
+                  build_info['definitionId'] = build_info['definition']['id']
+                  build_info['definitionName'] = build_info['definition']['name']
                   build_infos.append(build_content)
                   timeline_url = build_info['_links']['timeline']['href']
-                  logs = get_build_logs(timeline_url)
+                  logs = get_build_logs(timeline_url, build_info)
                   build_logs += logs
               upload_to_blob(build_messages, BUILD_MESSAGES)
               upload_to_blob(build_infos, BUILD_INFOS)
