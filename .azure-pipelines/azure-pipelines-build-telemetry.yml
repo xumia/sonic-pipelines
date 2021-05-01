@@ -126,7 +126,7 @@ stages:
                   build_info = json.loads(build_content)
                   build_info['definitionId'] = build_info['definition']['id']
                   build_info['definitionName'] = build_info['definition']['name']
-                  build_infos.append(build_content)
+                  build_infos.append(json.dumps(build_info))
                   timeline_url = build_info['_links']['timeline']['href']
                   logs = get_build_logs(timeline_url, build_info)
                   build_logs += logs
