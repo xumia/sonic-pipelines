@@ -1,0 +1,29 @@
+extends layout
+block block_navigators
+  li Files
+block content
+  script(type="text/javascript").
+    function copyToClipboard(e){
+    if(window.clipboardData)return void window.clipboardData.setData("text",e);
+    const t=t=>{const s=t.clipboardData;s&&s.setData("text/plain",e),t.preventDefault()};
+    document.addEventListener("copy",t),document.execCommand("copy"),document.removeEventListener("copy",t)}
+  table(class="simpletable")
+    tr
+      th Seq.
+      th Name
+      th Size
+      th Type
+      th Latest Link
+    each row in rows
+      - var href = artifactUrl;
+      - if (row.type == 'directory') { href = href + "&format=zip"; }
+      - var buildHref = href + "&buildId=" + buildId + "&target=" + row.name.substring(1);
+      - var latestHref = href + "&target=" + row.name.substring(1);
+      tr
+        td= row.seq
+        td
+          a(href=buildHref, target="_blank")= row.name.substring(1)
+        td= row.size
+        td= row.type
+        td
+          button(onclick="copyToClipboard(window.location.origin +'" + latestHref + "')") Copy Latest Static Link

@@ -1,0 +1,28 @@
+extends layout
+block block_navigators
+  li Builds
+block content
+  table(class="simpletable")
+    tr
+      th BuildId
+      th BuildNumber
+      th BranchName
+      th BuildName
+      th Result
+      th StartTime
+      th FinishTime
+      th BuildLink
+      th Artifacts
+    each row in rows
+      tr
+        td= row.id
+        td= row.buildNumber
+        td= branchName
+        td= row.definition.name
+        td= row.result
+        td= row.startTime.substring(0,19)
+        td= row.finishTime.substring(0,19)
+        td
+          a(href=row._links.web.href, target="_blank") Build Link
+        td
+          a(href="/ui/sonic/pipelines/" + row.definition.id + "/builds/" + row.id + "/artifacts?branchName=" + row.sourceBranch.replace("refs/heads/", ""), target="_blank") Artifacts
