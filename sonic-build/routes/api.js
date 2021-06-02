@@ -24,7 +24,7 @@ function RedirectArtifacts(req, res, next) {
     var params = req.params;
     var query = req.query;
     var buildId = params.buildId;
-    if (typeof buildId !== 'number'){
+    if (isNaN(parseInt(buildId))){
         if (buildId != 'latest'){
               var message = util.format("The parameter buildId '%s' is not correct, should be a number value or the value 'laster'.", buildId);
               return res.status(400).json({status: 400, message: message});
@@ -35,7 +35,7 @@ function RedirectArtifacts(req, res, next) {
         buildId = value.id;
     }
     
-    var artifactUrl = util.format(artifactUrlFormat, params.organization, params.project, value.id, query.artifactName);
+    var artifactUrl = util.format(artifactUrlFormat, params.organization, params.project, buildId, query.artifactName);
     var artifactRes = request('GET', artifactUrl, {json: {"Content-type": "application/json"}});
     var artifact = JSON.parse(artifactRes.getBody('utf8'));
     var downloadUrl = artifact.resource.downloadUrl;
@@ -58,8 +58,9 @@ function RedirectSonicArtifacts(req, res, next) {
     var query = req.query;
     params['organization'] = 'mssonic';
     params['project'] = 'build';
-    if (params['buildId'] == null) {
-        params['buildId'] = 'latest';
+    params['buildId'] = "latest";
+    if (query['buildId'] != null) {
+        params['buildId'] = query['buildId'];
     }
 
     var definitionId = query.definitionId;
