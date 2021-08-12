@@ -3,7 +3,8 @@ const KustoConnectionStringBuilder = require("azure-kusto-data").KustoConnection
 const ClientRequestProperties = require("azure-kusto-data").ClientRequestProperties;
 const uuidv4 = require("uuid/v4");
 const NodeCache = require( "node-cache" );
-const request = require('sync-request');
+var utils = require('./utils');
+const request = utils.request;
 
 const clusterConectionString = "https://sonic.westus2.kusto.windows.net";
 const database = "build";
@@ -14,10 +15,10 @@ const TEST = false;
 
 /* Query builds from Azure Pipelines, only for test
    Only support to list the default branch for a definition, it is hard to list all the branches for Azure Pipelines API in a single query*/
-function test_queryBuilds(){
+async function test_queryBuilds(){
     var url = "https://dev.azure.com/mssonic/build/_apis/build/definitions?api-version=6.0&includeAllProperties=true";
-    var definitionsRes = request('GET', url);
-    var definitions = JSON.parse(definitionsRes.getBody('utf8'));
+    var definitionsRes = await request('GET', url);
+    var definitions = JSON.parse(definitionsRes);
     var results = {};
     //Sequence, DefinitionId, DefinitionName, Platform, SourceBranch
     var rows = [];
@@ -50,7 +51,7 @@ async function query(queryString, timoutInSeconds = 1000 * 20, fromAzureAPI = fa
     clientRequestProps.clientRequestId = `MyApp.MyActivity;${uuidv4()}`;
 
     if (TEST || fromAzureAPI){
-        return test_queryBuilds();
+        return await test_queryBuilds();
     }
 
     try {

@@ -1,7 +1,8 @@
 var express = require('express');
 var router = express.Router();
 const util = require('util');
-const request = require('sync-request');
+var utils = require('./utils');
+const request = utils.request;
 const constants = require('./constants');
 const kusto = require('./kusto');
 
@@ -11,16 +12,16 @@ const buildResultUrlFormat = "https://dev.azure.com/%s/%s/_build/results?buildId
 
 const platformMapping = constants.PLATFORMS;
 
-function GetLatestBuild(req) {
+async function GetLatestBuild(req) {
   var params = req.params;
   var query = req.query;
   var succeededBuildUrl = util.format(succeededBuildUrlFormat, params.organization, params.project, params.definitionId, query.branchName);
-  var buildRes = request('GET', succeededBuildUrl);
-  var build = JSON.parse(buildRes.getBody('utf8'));
+  var buildRes = await request('GET', succeededBuildUrl);
+  var build = JSON.parse(buildRes);
   return build;
 }
 
-function RedirectArtifacts(req, res, next) {
+async function RedirectArtifacts(req, res, next) {
     var params = req.params;
     var query = req.query;
     var buildId = params.buildId;
@@ -30,14 +31,14 @@ function RedirectArtifacts(req, res, next) {
               return res.status(400).json({status: 400, message: message});
         }
 
-        var build = GetLatestBuild(req);
+        var build = await GetLatestBuild(req);
         var value = build.value[0];
         buildId = value.id;
     }
     
     var artifactUrl = util.format(artifactUrlFormat, params.organization, params.project, buildId, query.artifactName);
-    var artifactRes = request('GET', artifactUrl, {json: {"Content-type": "application/json"}});
-    var artifact = JSON.parse(artifactRes.getBody('utf8'));
+    var artifactRes = await request('GET', artifactUrl, {headers: {"Content-type": "application/json"}});
+    var artifact = JSON.parse(artifactRes);
     var downloadUrl = artifact.resource.downloadUrl;
     if (query.subPath != null){
         if (query.format != "zip"){
@@ -53,7 +54,7 @@ function RedirectArtifacts(req, res, next) {
     res.redirect(downloadUrl);
 }
 
-function RedirectSonicArtifacts(req, res, next) {
+async function RedirectSonicArtifacts(req, res, next) {
     var params = req.params;
     var query = req.query;
     params['organization'] = 'mssonic';
@@ -86,7 +87,7 @@ function RedirectSonicArtifacts(req, res, next) {
         query['artifactName'] = 'sonic-buildimage.' + platform; 
     }
 
-    RedirectArtifacts(req, res, next);
+    await RedirectArtifacts(req, res, next);
 }
 
 /* Get the build artifacts for all public projects

@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-const request = require('sync-request');
+var utils = require('./utils');
+const request = utils.request;
 const constants = require('./constants');
 const kusto = require('./kusto');
 const util = require('util');
@@ -56,12 +57,12 @@ router.get('/sonic/pipelines', async function(req, res, next) {
   });
 
 /* Get SONiC builds. */
-router.get('/sonic/pipelines/:definitionId/builds', function(req, res, next) {
+router.get('/sonic/pipelines/:definitionId/builds', async function(req, res, next) {
   var params = req.params;
   var query = req.query;
-  var url = util.format(buildUrlFormat, params.definitionId, query.branchName)
-  var buildsRes = request('GET', url);
-  var builds = JSON.parse(buildsRes.getBody('utf8'));
+  var url = util.format(buildUrlFormat, params.definitionId, query.branchName);
+  var buildsRes = await request('GET', url);
+  var builds = JSON.parse(buildsRes);
   res.render('builds', { title: 'Builds',
       rows: builds['value'],
       branchName: query.branchName,
@@ -69,13 +70,13 @@ router.get('/sonic/pipelines/:definitionId/builds', function(req, res, next) {
 });
 
 /* Get SONiC artifacts. */
-router.get('/sonic/pipelines/:definitionId/builds/:buildId/artifacts', function(req, res, next) {
+router.get('/sonic/pipelines/:definitionId/builds/:buildId/artifacts', async function(req, res, next) {
   var params = req.params;
   var query = req.query;
   var url = util.format(artifactUrlFormat, params.buildId);
   var navigator_builds = navigator_pipelines.concat([{name:'Builds', href:`/ui/sonic/pipelines/${params.definitionId}/builds?branchName=${query.branchName}`}]);
-  var artifactsRes = request('GET', url);
-  var artifacts = JSON.parse(artifactsRes.getBody('utf8'));
+  var artifactsRes = await request('GET', url);
+  var artifacts = JSON.parse(artifactsRes);
   for(var i=0; i<artifacts['value'].length; i++){
     var row = artifacts['value'][i];
     row["seq"] = i + 1;
@@ -89,7 +90,7 @@ router.get('/sonic/pipelines/:definitionId/builds/:buildId/artifacts', function(
   });
 
 /* Get SONiC artifact files. */
-router.get('/sonic/pipelines/:definitionId/builds/:buildId/artifacts/:artifactId', function(req, res, next) {
+router.get('/sonic/pipelines/:definitionId/builds/:buildId/artifacts/:artifactId', async function(req, res, next) {
     var params = req.params;
     var query = req.query;
     var sourceUrl = util.format(buildResultUrlFormat, params.buildId);
@@ -111,8 +112,8 @@ router.get('/sonic/pipelines/:definitionId/builds/:buildId/artifacts/:artifactId
       },
       body: JSON.stringify(body),
     };
-    var artifactsRes = request('POST', url, options);
-    var artifacts = JSON.parse(artifactsRes.getBody('utf8'));
+    var artifactsRes = await request('POST', url,  options);
+    var artifacts = JSON.parse(artifactsRes);
     var dataProvider = artifacts['dataProviders']['ms.vss-build-web.run-artifacts-data-provider'];
     var items = GetArtifactItems(dataProvider.items);
     for (var i=0; i<items.length; i++){
