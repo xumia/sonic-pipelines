@@ -81,7 +81,7 @@ stages:
 
           def get_coverage(build_info):
               base_url = re.sub('/_apis/.*', '/_apis', build_info['url'])
-              url = '{0}/test/codecoverage?buildId={1}&flags=4&api-version=6.0-preview.1'.format(base_url, build_info['id'])
+              url = '{0}/test/codecoverage?buildId={1}&api-version=6.0-preview.1'.format(base_url, build_info['id'])
               coverage_content = get_response(url)
               info = json.loads(json.dumps(build_info))
               coverage = json.loads(coverage_content)
