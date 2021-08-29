@@ -37,7 +37,7 @@ stages:
       inputs:
         scriptSource: 'inline'
         script: |
-          import datetime, base64, json, time, os
+          import datetime, base64, json, time, os, re
           from urllib import request
           from azure.storage.queue import QueueClient
           from azure.storage.blob import BlobServiceClient
@@ -48,6 +48,7 @@ stages:
           BUILD_MESSAGES = 'buildmessages'
           BUILD_INFOS = 'builds'
           BUILD_LOGS = 'buildlogs'
+          BUILD_COVERAGES = 'buildcoverages'
           MESSAGE_PER_PAGE = 10
           MAX_PAGE_COUNT = 30
           blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
@@ -76,7 +77,19 @@ stages:
                   except Exception as e:
                     print(e)
                     time.sleep(10)
-              raise Exception("failed to get response from {0}".format(url))
+              raise Exception('failed to get response from {0}'.format(url))
+
+          def get_coverage(build_info):
+              base_url = re.sub('/_apis/.*', '/_apis', build_info['url'])
+              url = '{1}/test/codecoverage?buildId={1}&flags=4&api-version=6.0-preview.1'.format(base_url, build_info['id'])
+              coverage_content = get_response(url)
+              info = json.load(json.dumps(build_info))
+              coverage = json.loads(coverage_content)
+              results = []
+              if 'coverageData' in coverage:
+                  info['coverage'] = coverage_content
+                  results.append(json.dumps(info))
+              return results
 
           # Get the build logs
           def get_build_logs(timeline_url, build_info):
@@ -109,6 +122,7 @@ stages:
               msgs = []
               build_infos = []
               build_logs = []
+              build_coverages = []
               msg_count = 0
               for msg in msg_batch:
                   msg_count = msg_count + 1
@@ -130,9 +144,11 @@ stages:
                   timeline_url = build_info['_links']['timeline']['href']
                   logs = get_build_logs(timeline_url, build_info)
                   build_logs += logs
+                  build_coverages += get_coverage(build_info)
               upload_to_blob(build_messages, BUILD_MESSAGES)
               upload_to_blob(build_infos, BUILD_INFOS)
               upload_to_blob(build_logs, BUILD_LOGS)
+              upload_to_blob(build_coverages, BUILD_COVERAGES)
               for msg in msgs:
                   queue_client.delete_message(msg)
       env:
