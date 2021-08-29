@@ -86,7 +86,7 @@ stages:
               info = json.loads(json.dumps(build_info))
               coverage = json.loads(coverage_content)
               results = []
-              if 'coverageData' in coverage:
+              if 'coverageData' in coverage and len(coverage['coverageData']) > 0:
                   info['coverage'] = coverage_content
                   results.append(json.dumps(info))
               return results
