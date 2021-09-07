@@ -17,8 +17,8 @@ block content
     each row in rows
       - var href = artifactUrl;
       - if (row.type == 'directory') { href = href + "&format=zip"; }
-      - var buildHref = href + "&buildId=" + buildId + "&target=" + row.name.substring(1);
-      - var latestHref = href + "&target=" + row.name.substring(1);
+      - var buildHref = href + "&buildId=" + buildId + "&target=" + encodeURIComponent(row.name.substring(1));
+      - var latestHref = href + "&target=" + encodeURIComponent(row.name.substring(1));
       tr
         td= row.seq
         td

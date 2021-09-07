@@ -4,7 +4,6 @@ const util = require('util');
 var utils = require('./utils');
 const request = utils.request;
 const constants = require('./constants');
-const kusto = require('./kusto');
 
 const succeededBuildUrlFormat = "https://dev.azure.com/%s/%s/_apis/build/builds?definitions=%s&branchName=refs/heads/%s&resultFilter=succeeded&statusFilter=completed&$top=1";
 const artifactUrlFormat = "https://dev.azure.com/%s/%s/_apis/build/builds/%s/artifacts?artifactName=%s";
@@ -49,7 +48,7 @@ async function RedirectArtifacts(req, res, next) {
         if (!subPath.startsWith('/')){
             subPath = '/' + subPath;
         }
-        downloadUrl = downloadUrl + "&subPath=" + subPath;
+        downloadUrl = downloadUrl + "&subPath=" + encodeURIComponent(subPath);
     }
     res.redirect(downloadUrl);
 }
