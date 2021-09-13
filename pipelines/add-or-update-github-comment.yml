@@ -81,7 +81,7 @@ stages:
               repository(owner: \"$OWNER\", name: \"$REPO\") {
                 pullRequest(number:$PRID) {id}
             }}" | jq '.data.repository.pullRequest.id')
-          if [ -n "$pullrequest_id" ] && [ "$last_comment_id" != null ]; then
+          if [ -n "$subject_id" ] && [ "$subject_id" != null ]; then
             gh api graphql -f query="
             mutation AddComment {
               addComment(input: {subjectId: $subject_id, body: \"$comment\"}) {
