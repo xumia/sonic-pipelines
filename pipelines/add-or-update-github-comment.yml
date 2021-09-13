@@ -94,7 +94,6 @@ stages:
             echo "Failed to query the subject id for pull request $PRID in repo $OWNER/$REPO" 1>&2
             exit 1
           fi
-            
         fi
       displayName: 'Add or update comment'
       env:
