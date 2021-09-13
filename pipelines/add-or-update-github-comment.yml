@@ -60,6 +60,11 @@ stages:
         echo "last_comment_id=$last_comment_id"
         if [ -n "$last_comment_id" ]; then
           echo "Update comment"
+          echo "query="
+          echo "mutation UpdateComment {
+            updateIssueComment(input: {id: \"$last_comment_id\", body: \"$comment\"}) {
+              issueComment {lastEditedAt}
+          }}"
           gh api graphql -f query="
           mutation UpdateComment {
             updateIssueComment(input: {id: \"$last_comment_id\", body: \"$comment\"}) {
