@@ -51,7 +51,7 @@ stages:
     - script: |
         comment="${COMMENT_PREFIX} ${{ parameters.comment }}"
         jq_query_string=".data.repository.pullRequest.comments.edges | map(select(.node.body | startswith(\"$COMMENT_PREFIX\"))) | first | .node.id"
-        echo "$(GITHUB_TOKEN)" | gh auth login --with-token
+        #echo "$(GITHUB_TOKEN)" | gh auth login --with-token
         echo "Add or update comment: $comment"
         last_comment_id=$(gh api graphql -f query="
         query FindComment {
