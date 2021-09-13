@@ -29,7 +29,7 @@ variables:
 stages:
 - stage: Build
   pool:
-    vmImage: 'ubuntu-latest'
+    vmImage: 'ubuntu-20.04'
   jobs:
   - job: Build
     steps:
