@@ -1,0 +1,87 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+pr: none
+
+parameters:
+- name: pullRequestId
+  type: number
+- name: owner
+  type: string
+  displayName: The repository owner
+- name: repository
+  type: string
+- name: comment
+  type: string
+
+name: ${{ parameters.owner }}_${{ parameters.repository }}_${{ parameters.pullRequestId }}_$(Date:yyyyMMdd)$(Rev:.r)
+
+
+variables:
+- PRID: ${{ parameters.pullRequestId }}
+- OWNER: ${{ parameters.owner }}
+- REPO: ${{ parameters.repository }}
+- COMMENT_PREFIX: '<!--code coverage-->'
+
+stages:
+- stage: Build
+  pool:
+    vmImage: 'ubuntu-latest'
+  jobs:
+  - job: Build
+    steps:
+    - script: |
+        sudo apt-get install -y gpg jq curl
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg --output - | sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+        sudo apt update
+        sudo apt install gh
+      displayName: 'Install packages'
+    - script: |
+        comment="${COMMENT_PREFIX} ${{ parameters.comment }}"
+        jq_query_string=".data.repository.pullRequest.comments.edges | map(select(.node.body | startswith(\"$COMMENT_PREFIX\"))) | first | .node.id"
+        echo "$(GITHUB_TOKEN)" | gh auth login --with-token
+        last_comment_id=$(gh api graphql -f query="
+        query FindComment {
+          repository(owner: \"$OWNER\", name: \"$REPO\") {
+            pullRequest(number: $PRID) {
+              comments(first: 100) {
+                edges { node {body, url, id}}
+              }}}
+        }" | jq "$jq_query_string")
+        if [ -n "$last_comment_id" ]; then
+          # Update comment
+          gh api graphql -f query="
+          mutation UpdateComment {
+            updateIssueComment(input: {id: \"$last_comment_id\", body: \"$comment\"}) {
+              issueComment {lastEditedAt}
+          }}"
+        else
+          # Create comment
+          subject_id=$(gh api graphql -f query="
+            query FindPullRequestID {
+              repository(owner: \"$OWNER\", name: \"$REPO\") {
+                pullRequest(number:$PRID) {id}
+            }}" | jq '.data.repository.pullRequest.id')
+          if [ -n "$pullrequest_id" ]; then
+            gh api graphql -f query="
+            mutation AddComment {
+              addComment(input: {subjectId: \"$subject_id\", body: \"$comment\"}) {
+                commentEdge{
+                  node {id}
+                }
+              }
+            }"
+          else
+            echo "Failed to query the subject id for pull request $PRID in repo $OWNER/$REPO" 1>&2
+            exit 1
+          fi
+            
+        fi
+        echo test
+      displayName: 'Add or update comment'
+      env:
+        GITHUB_TOKEN: $(GITHUB_TOKEN)
