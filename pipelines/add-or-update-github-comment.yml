@@ -66,12 +66,12 @@ stages:
           echo "Update comment"
           echo "query="
           echo "mutation UpdateComment {
-            updateIssueComment(input: {id: \"$last_comment_id\", body: \"$comment\"}) {
+            updateIssueComment(input: {id: $last_comment_id, body: \"$comment\"}) {
               issueComment {lastEditedAt}
           }}"
           gh api graphql -f query="
           mutation UpdateComment {
-            updateIssueComment(input: {id: \"$last_comment_id\", body: \"$comment\"}) {
+            updateIssueComment(input: {id: $last_comment_id, body: \"$comment\"}) {
               issueComment {lastEditedAt}
           }}"
         else
@@ -84,7 +84,7 @@ stages:
           if [ -n "$pullrequest_id" ]; then
             gh api graphql -f query="
             mutation AddComment {
-              addComment(input: {subjectId: \"$subject_id\", body: \"$comment\"}) {
+              addComment(input: {subjectId: $subject_id, body: \"$comment\"}) {
                 commentEdge{
                   node {id}
                 }
