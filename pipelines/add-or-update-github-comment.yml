@@ -98,4 +98,4 @@ stages:
         fi
       displayName: 'Add or update comment'
       env:
-        GITHUB_TOKEN: $(System.AccessToken)
+        GITHUB_TOKEN: $(GITHUB_TOKEN)
