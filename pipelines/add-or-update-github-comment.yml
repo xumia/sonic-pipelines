@@ -21,10 +21,10 @@ name: ${{ parameters.owner }}_${{ parameters.repository }}_${{ parameters.pullRe
 
 
 variables:
-- PRID: ${{ parameters.pullRequestId }}
-- OWNER: ${{ parameters.owner }}
-- REPO: ${{ parameters.repository }}
-- COMMENT_PREFIX: '<!--code coverage-->'
+  PRID: ${{ parameters.pullRequestId }}
+  OWNER: ${{ parameters.owner }}
+  REPO: ${{ parameters.repository }}
+  COMMENT_PREFIX: '<!--code coverage-->'
 
 stages:
 - stage: Build
