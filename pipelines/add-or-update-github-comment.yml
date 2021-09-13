@@ -62,7 +62,7 @@ stages:
               }}}
         }" | jq "$jq_query_string")
         echo "last_comment_id=$last_comment_id"
-        if [ -n "$last_comment_id" ]; then
+        if [ -n "$last_comment_id" && "$last_comment_id" != null ]; then
           echo "Update comment"
           echo "query="
           echo "mutation UpdateComment {
