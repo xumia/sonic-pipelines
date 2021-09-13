@@ -19,7 +19,7 @@ parameters:
   default: test-workflow
 - name: comment
   type: string
-  default: test4
+  default: test5
 
 name: ${{ parameters.owner }}_${{ parameters.repository }}_${{ parameters.pullRequestId }}_$(Date:yyyyMMdd)$(Rev:.r)
 
