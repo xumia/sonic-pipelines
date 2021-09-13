@@ -9,13 +9,17 @@ pr: none
 parameters:
 - name: pullRequestId
   type: number
+  default: 13
 - name: owner
   type: string
+  default: xumia
   displayName: The repository owner
 - name: repository
   type: string
+  default: test-workflow
 - name: comment
   type: string
+  default: test4
 
 name: ${{ parameters.owner }}_${{ parameters.repository }}_${{ parameters.pullRequestId }}_$(Date:yyyyMMdd)$(Rev:.r)
 
