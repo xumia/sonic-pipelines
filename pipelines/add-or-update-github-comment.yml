@@ -34,11 +34,15 @@ stages:
   - job: Build
     steps:
     - script: |
+        if [ -z "$(which gh)" ]; then
         sudo apt-get install -y gpg jq curl
         curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg --output - | sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
         echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-        sudo apt update
-        sudo apt install gh
+        sudo apt-get update
+        sudo apt-get install -y gh jq
+        else
+          echo "The gh has already installed, skipped."
+        fi
       displayName: 'Install packages'
     - script: |
         comment="${COMMENT_PREFIX} ${{ parameters.comment }}"
