@@ -1,0 +1,41 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Microsoft/azure-pipelines-task-lib/master/tasks.schema.json",
+    "id": "f9901637-5ffa-4fdb-af5a-e91314e0c215",
+    "name": "UpdateBuildProperties",
+    "friendlyName": "Update build properties",
+    "description": "Update the properties for the current build",
+    "helpUrl": "",
+    "helpMarkDown": "",
+    "category": "Utility",
+    "author": "xumia",
+    "version": {
+        "Major": 1,
+        "Minor": 0,
+        "Patch": 13
+    },
+    "demands": [],
+    "instanceNameFormat": "Publish code coverage",
+    "inputs": [
+        {
+            "name": "properties",
+            "type": "string",
+            "label": "inline properties in json format",
+            "defaultValue": "",
+            "required": false,
+            "helpMarkDown": "For example: [{ \"op\": \"add\",  \"path\": \"/name\", \"value\": \"value\"}], if the value set, the inputFile will be skpped."
+        },
+        {
+            "name": "inputFile",
+            "type": "string",
+            "label": "The json file contains all properties",
+            "defaultValue": "",
+            "required": false,
+            "helpMarkDown": "Input file to the properties in json format"
+        }
+    ],
+    "execution": {
+        "Node10": {
+            "target": "index.js"
+        }
+    }
+}

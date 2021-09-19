@@ -1,0 +1,61 @@
+{
+    "manifestVersion": 1,
+    "id": "code-diff-coverage",
+    "publisher": "CodeCoverageTask",
+    "version": "1.0.13",
+    "name": "Code Diff Coverage",
+    "description": "Code Diff Coverage",
+    "public": false,
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "scopes":[
+        "vso.build_execute"
+    ],
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],
+    "contributions": [
+        {
+            "id": "update-build-properties-task",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "UpdateBuildProperties"
+            }
+        },
+        {
+            "id": "pull-request-coverage-task",
+            "type": "ms.azure-pipelines.pipeline-decorator",
+            "targets": [
+                "ms.azure-pipelines-agent-job.post-job-tasks"
+            ],
+            "properties": {
+                "template": "pull-request-coverage-task.yml"
+            }
+        }
+    ],
+    "content": {
+        "details": {
+            "path": "overview.md"
+        }
+    },
+    "icons": {
+        "default": "images/extension-icon.png"
+    },
+    "files": [
+        {
+            "path": "UpdateBuildProperties",
+            "addressable": true
+        },
+        {
+            "path": "pull-request-coverage-task.yml",
+            "addressable": true,
+            "contentType": "text/plain"
+        }
+    ]
+}

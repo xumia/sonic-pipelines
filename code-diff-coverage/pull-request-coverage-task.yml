@@ -1,0 +1,90 @@
+steps:
+  - ${{ if and(eq(variables['Build.Reason'], 'PullRequest'), eq(variables['DIFF_COVER_DISABLE'], 'false')) }}:
+    - task: CmdLine@2
+      inputs:
+        script: |
+          [ -z "$DIFF_COVER_COVERAGE_FILES" ] && DIFF_COVER_COVERAGE_FILES="coverage.xml **/coverage.xml"
+          converage_files="$DIFF_COVER_COVERAGE_FILES"
+          converage_files=$(ls $DIFF_COVER_COVERAGE_FILES 2>/dev/null) || true
+          if [ -z "$converage_files" ]; then
+            echo "Skipped, the coverage files not found, the coverage file pattern is \"$DIFF_COVER_COVERAGE_FILES\""
+            exit 0
+          fi
+
+          target_branch=$(System.PullRequest.TargetBranch)
+          compare_branch=origin/${target_branch#refs/heads/}
+          mkdir -p .coverage/htmlcov
+          sudo pip install diff-cover
+          diff-cover $converage_files --ignore-unstaged --compare-branch=$compare_branch --html-report=.coverage/htmlcov/index.html
+          diff-cover $converage_files --ignore-unstaged --compare-branch=$compare_branch --json-report=.coverage/diff-cover.json
+          coverage_file=$(echo $converage_files | cut -d " " -f1)
+          coverage_file=$(realpath $coverage_file)
+          echo "##vso[task.setvariable variable=disable.coverage.autogenerate;]true"
+          echo "##vso[task.setvariable variable=has.coverage.files;]true"
+          echo "##vso[task.setvariable variable=code.coverage.file;]$coverage_file"
+      displayName: "[Auto] Show diff coverage"
+      continueOnError: true
+    - ${{ if ne(variables['DIFF_COVER_CHECK_DISABLE'], 'true') }}:
+      - task: PythonScript@0
+        inputs:
+          scriptSource: inline
+          script: |
+            import json, requests, os, datetime
+            cover = {}
+            checkThreshold=os.environ.get('DIFF_COVER_CHECK_THRESHOLD')
+            if not checkThreshold:
+              checkThreshold = '0'
+            threshold = 0
+            try:
+              threshold = float(checkThreshold)
+            except:
+              print('Failed to parse the DIFF_COVER_CHECK_THRESHOLD={0} to float'.format(checkThreshold))
+              exit(0)
+            with open(".coverage/diff-cover.json", "r") as f:
+              cover=json.load(f)
+            properties = {
+              'pullRequestId': $(System.PullRequest.PullRequestNumber),
+              'repoUri': '$(System.PullRequest.SourceRepositoryURI)',
+              'targetBranch': '$(System.PullRequest.TargetBranch)',
+              'sourceCommitId': '$(system.pullRequest.sourceCommitId)',
+              'sourceVersion': '$(Build.SourceVersion)',
+              'jobName': '$(Agent.JobName)',
+              'jobId': '$(System.JobId)',
+              'definitionName': '$(Build.DefinitionName)',
+              'stageName': '$(System.StageName)',
+              'jobAttempt': '$(System.JobAttempt)',
+              'timestamp': datetime.datetime.now().isoformat(),
+              'cover.threshold': threshold,
+              'cover.num_lines': cover.get("total_num_lines"),
+              'cover.num_violations': cover.get("total_num_violations"),
+              'cover.percent_covered': cover.get("total_percent_covered"),
+            }
+
+            data = [
+                {
+                  'op': 'add',
+                  'path': '/codediff.{0}'.format('$(Agent.JobName)'),
+                  'value': json.dumps(properties)
+                }
+              ]
+
+            with open(".coverage/codecoverageProperties.json", "w") as f:
+                f.write(json.dumps(data))
+        displayName: '[Auto] Generate build coverage properties'
+        condition: eq(variables['has.coverage.files'], 'true')
+        continueOnError: true
+      - task: UpdateBuildProperties@1
+        inputs:
+          inputFile: '.coverage/codecoverageProperties.json'
+        displayName: '[Auto] Update build coverage properties'
+        condition: eq(variables['has.coverage.files'], 'true')
+        continueOnError: true
+    - ${{ if ne(variables['DIFF_COVER_COVERAGE_REPORT_DISABLE'], 'true') }}:
+      - task: PublishCodeCoverageResults@1
+        inputs:
+          codeCoverageTool: Cobertura
+          summaryFileLocation: '$(code.coverage.file)'
+          reportDirectory: '$(System.DefaultWorkingDirectory)/.coverage/htmlcov'
+        displayName: '[Auto] Publish coverage'
+        condition: eq(variables['has.coverage.files'], 'true')
+        continueOnError: true
