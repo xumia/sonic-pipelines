@@ -3,6 +3,8 @@ steps:
     - task: CmdLine@2
       inputs:
         script: |
+          [ -z "$DIFF_COVER_WORKING_DIRECTORY" ] && DIFF_COVER_WORKING_DIRECTORY=$(System.DefaultWorkingDirectory)
+          cd $DIFF_COVER_WORKING_DIRECTORY
           [ -z "$DIFF_COVER_COVERAGE_FILES" ] && DIFF_COVER_COVERAGE_FILES="coverage.xml **/coverage.xml"
           converage_files="$DIFF_COVER_COVERAGE_FILES"
           converage_files=$(ls $DIFF_COVER_COVERAGE_FILES 2>/dev/null) || true
@@ -13,10 +15,10 @@ steps:
 
           target_branch=$(System.PullRequest.TargetBranch)
           compare_branch=origin/${target_branch#refs/heads/}
-          mkdir -p .coverage/htmlcov
+          mkdir -p .diff-coverage/htmlcov
           sudo pip install diff-cover > /dev/null
-          diff-cover $converage_files --ignore-unstaged --compare-branch=$compare_branch --json-report=.coverage/diff-cover.json > /dev/null
-          diff-cover $converage_files --ignore-unstaged --compare-branch=$compare_branch --html-report=.coverage/htmlcov/index.html
+          diff-cover $converage_files --ignore-unstaged --compare-branch=$compare_branch --json-report=.diff-coverage/diff-cover.json > /dev/null
+          diff-cover $converage_files --ignore-unstaged --compare-branch=$compare_branch --html-report=.diff-coverage/htmlcov/index.html
           coverage_file=$(echo $converage_files | cut -d " " -f1)
           coverage_file=$(realpath $coverage_file)
           echo "code.coverage.file=$coverage_file"
@@ -24,12 +26,14 @@ steps:
           echo "##vso[task.setvariable variable=disable.coverage.autogenerate;]true"
           echo "##vso[task.setvariable variable=has.coverage.files;]true"
           echo "##vso[task.setvariable variable=code.coverage.file;]$coverage_file"
+          echo "##vso[task.setvariable variable=code.coverage.working.directory;]$DIFF_COVER_WORKING_DIRECTORY"
       displayName: "[Auto] Show diff coverage"
       continueOnError: true
     - ${{ if ne(variables['DIFF_COVER_CHECK_DISABLE'], 'true') }}:
       - task: PythonScript@0
         inputs:
           scriptSource: inline
+          workingDirectory: $(code.coverage.working.directory)
           script: |
             import json, requests, os, datetime
             cover = {}
@@ -42,7 +46,7 @@ steps:
             except:
               print('Failed to parse the DIFF_COVER_CHECK_THRESHOLD={0} to float'.format(checkThreshold))
               exit(0)
-            with open(".coverage/diff-cover.json", "r") as f:
+            with open(".diff-coverage/diff-cover.json", "r") as f:
               cover=json.load(f)
             properties = {
               'pullRequestId': $(System.PullRequest.PullRequestNumber),
@@ -70,14 +74,14 @@ steps:
                 }
               ]
 
-            with open(".coverage/codecoverageProperties.json", "w") as f:
+            with open(".diff-coverage/codecoverageProperties.json", "w") as f:
                 f.write(json.dumps(data))
         displayName: '[Auto] Generate build coverage properties'
         condition: eq(variables['has.coverage.files'], 'true')
         continueOnError: true
       - task: UpdateBuildProperties@1
         inputs:
-          inputFile: '.coverage/codecoverageProperties.json'
+          inputFile: '$(code.coverage.working.directory)/.diff-coverage/codecoverageProperties.json'
         displayName: '[Auto] Update build coverage properties'
         condition: eq(variables['has.coverage.files'], 'true')
         continueOnError: true
@@ -86,7 +90,7 @@ steps:
         inputs:
           codeCoverageTool: Cobertura
           summaryFileLocation: '$(code.coverage.file)'
-          reportDirectory: '$(System.DefaultWorkingDirectory)/.coverage/htmlcov'
+          reportDirectory: '$(code.coverage.working.directory)/.diff-coverage/htmlcov'
         displayName: '[Auto] Publish coverage'
         condition: eq(variables['has.coverage.files'], 'true')
         continueOnError: true
