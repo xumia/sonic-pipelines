@@ -29,7 +29,7 @@ The PR coverage is one of the important metric to measure the code quality of a 
 
 |**Name**|**Default**|**Description**|
 | :- | :- | :- |
-|DIFF\_COVER\_DISABLE|true|The feature flag, not enabled by default.|
+|DIFF\_COVER\_ENABLE|false|The feature flag, not enabled by default.|
 |DIFF\_COVER\_COVERAGE\_FILES|coverage.xml \*\*/coverage.xml|Relative to the diff coverage working directory, list all the coverage files in Cobertura format by space.|
 |DIFF\_COVER\_COVERAGE\_REPORT\_DISABLE|false|If the value is not enabled, you can see the diff coverage report of you pull request in Azure Pipelines.|
 |DIFF\_COVER\_CHECK\_DISABLE|false|It will add the checks in your pull request by default.|

@@ -1,5 +1,5 @@
 steps:
-  - ${{ if and(eq(variables['Build.Reason'], 'PullRequest'), eq(variables['DIFF_COVER_DISABLE'], 'false')) }}:
+  - ${{ if and(eq(variables['Build.Reason'], 'PullRequest'), or(eq(variables['DIFF_COVER_DISABLE'], 'false'), eq(variables['DIFF_COVER_ENABLE'], 'true'))) }}:
     - task: CmdLine@2
       inputs:
         script: |
