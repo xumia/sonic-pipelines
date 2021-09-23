@@ -81,6 +81,7 @@ async function  create_checks_by_azp_check_run(context, azp_check_run){
 
         var info = azp.getAzDevInfoFromCheckPayload(azp_check_run);
         var details_url = `https://dev.azure.com/${info.org}/${info.projectId}/_build/results?buildId=${info.buildId}&view=logs&jobId=${jobId}`;
+        var coverage_url = `https://dev.azure.com/${info.org}/${info.projectId}/_build/results?buildId=${info.buildId}&view=codecoverage-tab`;
         console.log(`Creating check ${checkName}`);
         var num_lines = coverageInfo["cover.num_lines"];
         var num_violations = coverageInfo["cover.num_violations"];
@@ -104,7 +105,7 @@ async function  create_checks_by_azp_check_run(context, azp_check_run){
             details_url: details_url,
             output: {
                 title: "Pull Request Coverage",
-                summary: `Total:   ${num_lines} lines\nMissing: ${num_violations} lines\nCoverage: ${percent_covered}%\nThreshold: ${threshold}%`,
+                summary: `Total:   ${num_lines} lines\nMissing: ${num_violations} lines\nCoverage: ${percent_covered}%\nThreshold: ${threshold}%\n[Diff coverage](${coverage_url})`,
 
             }
         });
