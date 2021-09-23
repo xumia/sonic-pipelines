@@ -51,9 +51,9 @@ Refer to the sample PRs above to enable the feature.
 
 For PR owner and reviews, you can see the uncovered lines in detail in "Code coverage" in the Azure Pipelines.
 
-![github-coverage-check](D:\projects\nodejs\sonic-build-web\code-diff-coverage\images\github-coverage-check.png)
+![github-coverage-check](images\github-coverage-check.png)
 
-![azure-devops-code-coverage](D:\projects\nodejs\sonic-build-web\code-diff-coverage\images\azure-devops-code-coverage.png)
+![azure-devops-code-coverage](images\azure-devops-code-coverage.png)
 
 ## How to enforce the PR coverage?
 
