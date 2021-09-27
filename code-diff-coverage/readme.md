@@ -35,6 +35,7 @@ The PR coverage is one of the important metric to measure the code quality of a 
 |DIFF\_COVER\_CHECK\_DISABLE|false|It will add the checks in your pull request by default.|
 |DIFF\_COVER\_CHECK\_THRESHOLD|0|The value range is 0~100. The default value is 0, always success.|
 |DIFF\_COVER\_WORKING\_DIRECTORY|$(System.DefaultWorkingDirectory)|The diff coverage working directory, the default working directory used if not specified. The typical usage is for multiple repositories checked out in one job in azp. The diff coverage working directory should be in a git repository, so the diff coverage can be generated comparing the targe branch.|
+|DIFF\_COVER\_FULLCOVERAGELINK\_DISABLE|false|A value indicates whether to disable the full coverage link in the diff coverage report.|
 The pull request check name format is "coverage.{BuildDefinitionName}.{JobName}".
 
 
@@ -43,7 +44,7 @@ The pull request check name format is "coverage.{BuildDefinitionName}.{JobName}"
 
 1. Enable Unit Tests in your repo and generate coverage.xml files, it can contains one coverage.xml file or multiple coverage.xml files in different directories. By default, it only search the file name exactly equal to coverage.xml in the root of the working directory and the first level directories (\*\*/coverage.xml).
 1. [Option] Validate the full coverage works fine. You can send a PR to confirm the full coverage work fine in azp.
-1. Add the variable DIFF\_COVER\_DISABLE=false for the jobs you want to enable the diff coverage your azp template. If you want to change the default coverage threshold, you can add the variable DIFF\_COVER\_CHECK\_THRESHOLD in the azp template as well.
+1. Add the variable DIFF\_COVER\_ENABLE=true for the jobs you want to enable the diff coverage your azp template. If you want to change the default coverage threshold, you can add the variable DIFF\_COVER\_CHECK\_THRESHOLD in the azp template as well.
 
 Refer to the sample PRs above to enable the feature.
 

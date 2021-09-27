@@ -19,6 +19,10 @@ steps:
           sudo pip install diff-cover > /dev/null
           diff-cover $converage_files --ignore-unstaged --compare-branch=$compare_branch --json-report=.diff-coverage/diff-cover.json > /dev/null
           diff-cover $converage_files --ignore-unstaged --compare-branch=$compare_branch --html-report=.diff-coverage/htmlcov/index.html
+          if [ "$HAS_PUBLISH_CODE_COVERAGE_RESULTS" == "true" ] && [ "$DIFF_COVER_FULLCOVERAGELINK_DISABLE" != "true" ]; then
+            # Add the full coverage links
+            sed -i "s#<h1>Diff Coverage</h1>#<h1>Diff Coverage</h1><a href="index.htm">Full Coverage</a>#" .diff-coverage/htmlcov/index.html
+          fi
           coverage_file=$(echo $converage_files | cut -d " " -f1)
           coverage_file=$(realpath $coverage_file)
           echo "code.coverage.file=$coverage_file"
@@ -29,6 +33,9 @@ steps:
           echo "##vso[task.setvariable variable=code.coverage.working.directory;]$DIFF_COVER_WORKING_DIRECTORY"
       displayName: "[Auto] Show diff coverage"
       continueOnError: true
+      env:
+        ${{ if containsValue(job.steps.*.task.id, '2a7ebc54-c13e-490e-81a5-d7561ab7cd97') }}:
+          HAS_PUBLISH_CODE_COVERAGE_RESULTS: 'true'
     - ${{ if ne(variables['DIFF_COVER_CHECK_DISABLE'], 'true') }}:
       - task: PythonScript@0
         inputs:
