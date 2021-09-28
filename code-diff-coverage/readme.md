@@ -40,7 +40,7 @@ The pull request check name format is "coverage.{BuildDefinitionName}.{JobName}"
 
 
 
-## How to enable the code diff coverage feature for PR owner?
+## How to enable the code diff coverage feature for repository owner?
 
 1. Enable Unit Tests in your repo and generate coverage.xml files, it can contains one coverage.xml file or multiple coverage.xml files in different directories. By default, it only search the file name exactly equal to coverage.xml in the root of the working directory and the first level directories (\*\*/coverage.xml).
 1. [Option] Validate the full coverage works fine. You can send a PR to confirm the full coverage work fine in azp.
