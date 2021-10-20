@@ -16,7 +16,11 @@ steps:
           target_branch=$(System.PullRequest.TargetBranch)
           compare_branch=origin/${target_branch#refs/heads/}
           mkdir -p .diff-coverage/htmlcov
-          sudo pip install diff-cover > /dev/null
+          if [ -n "$(which pip3)" ]; then
+            sudo pip3 install diff-cover > /dev/null
+          else
+            sudo pip install diff-cover > /dev/null
+          fi
           diff-cover $converage_files --ignore-unstaged --compare-branch=$compare_branch --json-report=.diff-coverage/diff-cover.json > /dev/null
           diff-cover $converage_files --ignore-unstaged --compare-branch=$compare_branch --html-report=.diff-coverage/htmlcov/index.html
           if [ "$HAS_PUBLISH_CODE_COVERAGE_RESULTS" == "true" ] && [ "$DIFF_COVER_FULLCOVERAGELINK_DISABLE" != "true" ]; then
