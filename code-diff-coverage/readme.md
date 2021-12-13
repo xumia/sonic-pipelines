@@ -14,7 +14,7 @@ The PR coverage is one of the important metric to measure the code quality of a 
 
 1. Generate the code coverage report in [Cobertura](https://cobertura.github.io/cobertura/) xml format.
 1. Install the Azure DevOps extension [code diff coverage](https://marketplace.visualstudio.com/items?itemName=CodeCoverageTask.code-diff-coverage) in your organization, it has been installed in mssonic.
-1. Install the GitHub Application [Azure pipelines Wrapper](https://github.com/settings/apps/azure-pipelines-wrapper/installations) in your repositories if needs the PR checks, see , it has been installed in many SONiC repositories: sonic-telemetry, sonic-swss, sonic-utilities, etc.
+1. Install the GitHub Application [Azure pipelines Wrapper](https://github.com/apps/azure-pipelines-wrapper) in your repositories if needs the PR checks, it has been installed in many SONiC repositories: sonic-telemetry, sonic-swss, sonic-utilities, etc.
 
 ## Pull Request examples:
 
