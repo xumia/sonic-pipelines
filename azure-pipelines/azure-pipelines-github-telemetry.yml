@@ -116,7 +116,7 @@ stages:
             print('start: {0}, until: {1}'.format(start_timestamp.isoformat(), until.isoformat()), flush=True)
             query_pattern = '''
             {
-              search(query: "org:azure is:pr updated:%s..%s sort:updated", %s type: ISSUE, first: 100) {
+              search(query: "org:azure org:sonic-net is:pr updated:%s..%s sort:updated", %s type: ISSUE, first: 100) {
                 issueCount
                 pageInfo {
                   hasNextPage
