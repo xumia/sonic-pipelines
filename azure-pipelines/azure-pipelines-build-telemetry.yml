@@ -100,6 +100,7 @@ stages:
                   return []
               records = json.loads(timeline_content)['records']
               results = []
+              max_column_size = 104855000
               for record in records:
                   record['content'] = ""
                   record['buildId'] = build_info['id']
@@ -112,7 +113,7 @@ stages:
                   if record['log']:
                       log_url = record['log']['url']
                       log = get_response(log_url)
-                      record['content'] = log
+                      record['content'] = log[:max_column_size]
                   if 'parameters' in build_info:
                       record['parameters'] = build_info['parameters']
                   if 'status' in build_info:
