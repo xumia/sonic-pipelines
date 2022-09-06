@@ -168,7 +168,7 @@ stages:
                       split_build_logs = []
                       log_size = 0
                   split_build_logs.append(build_log)
-                  log_size += len(build_log[])
+                  log_size += len(build_log)
               print("Upload log, log_size {}".format(log_size))
               upload_to_blob(split_build_logs, BUILD_LOGS)
               for msg in msgs:
