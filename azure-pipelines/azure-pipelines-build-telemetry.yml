@@ -157,9 +157,22 @@ stages:
                   build_coverages += get_coverage(build_info)
               upload_to_blob(build_messages, BUILD_MESSAGES)
               upload_to_blob(build_infos, BUILD_INFOS)
-              upload_to_blob(build_logs, BUILD_LOGS)
               upload_to_blob(build_coverages, BUILD_COVERAGES)
+              split_build_logs = []
+              log_size = 0
+              max_upload_size = 100 * 1024 * 1024 # 100M
+              for build_log in build_logs:
+                  if log_size >= max_upload_size:
+                      print("Split the logs to upload, content log_size {}".format(log_size))
+                      upload_to_blob(batch_build_logs, BUILD_LOGS)
+                      split_build_logs = []
+                      log_size = 0
+                  split_build_logs.append(build_log)
+                  log_size += len(build_log['content'])
+              print("Upload log, content log_size {}".format(log_size))
+              upload_to_blob(split_build_logs, BUILD_LOGS)
               for msg in msgs:
                   queue_client.delete_message(msg)
+          exit(0)
       env:
         AZURE_STORAGE_CONNECTION_STRING: '$(AZURE_STORAGE_CONNECTION_STRING)'
