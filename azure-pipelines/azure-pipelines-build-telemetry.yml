@@ -56,6 +56,8 @@ stages:
           # Upload a list of lines to blob
           def upload_to_blob(lines, blob_prefix, file_prefix=""):
             now = datetime.datetime.now()
+            if len(lines) == 0:
+              return
             local_file_name = file_prefix + now.strftime("_%Y%m%d-%H%M%S-%f") + '.json'
             with open(local_file_name, "w") as file:
               count = file.write('\n'.join(lines))
