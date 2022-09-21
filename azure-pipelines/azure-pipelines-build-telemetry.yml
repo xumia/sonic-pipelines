@@ -167,7 +167,7 @@ stages:
               for build_log in build_logs:
                   if log_size >= max_upload_size:
                       print("Split the logs to upload, log_size {}".format(log_size))
-                      upload_to_blob(batch_build_logs, BUILD_LOGS)
+                      upload_to_blob(split_build_logs, BUILD_LOGS)
                       split_build_logs = []
                       log_size = 0
                   split_build_logs.append(build_log)
