@@ -10,6 +10,10 @@ DEFAULT_ARCH=$(dpkg --print-architecture)
 apt-get update
 apt-get install -y ca-certificates curl gnupg lsb-release
 
+# Install build tools (and waiting docker ready)
+apt-get install -y make nfs-common python3-pip python3-setuptools
+pip3 install jinja2==2.10 j2cli==0.3.10
+
 if [ "$ARCH" == "armhf" ] && [ "$ARCH" != "$DEFAULT_ARCH" ]; then
   dpkg --add-architecture armhf
 fi
@@ -48,7 +52,3 @@ if [ "$ARCH" == "armhf" ] && [ "$ARCH" != "$DEFAULT_ARCH" ]; then
     exit 1
   fi
 fi
-
-# Install build tools (and waiting docker ready)
-apt-get install -y build-essential nfs-common python3-pip python3-setuptools
-pip3 install jinja2==2.10 j2cli==0.3.10
