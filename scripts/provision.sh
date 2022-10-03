@@ -5,13 +5,33 @@ set -ex
 ARCH=$1
 DEFAULT_ARCH=$(dpkg --print-architecture)
 [ -z "$ARCH" ] && [ -f /etc/docker-arch ] && ARCH=$(cat /etc/docker-arch)
-[ -z "$ARCH" ] && ARCH=$DEFAULT_ARCH  
+[ -z "$ARCH" ] && ARCH=$DEFAULT_ARCH
 
-apt-get update
-apt-get install -y ca-certificates curl gnupg lsb-release
+
+apt_get_cmd()
+{
+  local retry=12
+  local sleep=10
+  for ((i=1; i<=$retry; i++)); do
+    if apt-get "$@" | tee /tmp/dpkg.log; then
+      break
+    fi
+
+    if ! grep -q "Could not get lock" /tmp/dpkg.log; then
+      echo "Failed install $@"
+      break
+    fi
+
+    echo "Retry for dpkg lock"
+    sleep 10
+  done
+} 
+
+apt_get_cmd update
+apt_get_cmd install -y ca-certificates curl gnupg lsb-release
 
 # Install build tools (and waiting docker ready)
-apt-get install -y make nfs-common python3-pip python3-setuptools
+apt_get_cmd install -y make nfs-common python3-pip python3-setuptools
 pip3 install jinja2==2.10 j2cli==0.3.10
 
 if [ "$ARCH" == "armhf" ] && [ "$ARCH" != "$DEFAULT_ARCH" ]; then
@@ -22,8 +42,8 @@ mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg --batch --yes
 echo "deb [arch=$ARCH signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
 
-apt-get update
-apt-get install -y docker-ce:$ARCH docker-ce-cli:$ARCH containerd.io:$ARCH docker-compose-plugin:$ARCH
+apt_get_cmd update
+apt_get_cmd install -y docker-ce:$ARCH docker-ce-cli:$ARCH containerd.io:$ARCH docker-compose-plugin:$ARCH
 
 # Customize for armhf
 if [ "$ARCH" == "armhf" ] && [ "$ARCH" != "$DEFAULT_ARCH" ]; then
