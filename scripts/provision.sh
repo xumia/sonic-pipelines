@@ -45,6 +45,8 @@ echo "deb [arch=$ARCH signed-by=/etc/apt/keyrings/docker.gpg] https://download.d
 apt_get_cmd update
 apt_get_cmd install -y docker-ce:$ARCH docker-ce-cli:$ARCH containerd.io:$ARCH docker-compose-plugin:$ARCH
 
+mkdir -p /data /work
+
 # Customize for armhf
 if [ "$ARCH" == "armhf" ] && [ "$ARCH" != "$DEFAULT_ARCH" ]; then
   # Configure docker service
