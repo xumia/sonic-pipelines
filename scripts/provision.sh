@@ -7,18 +7,19 @@ DEFAULT_ARCH=$(dpkg --print-architecture)
 [ -z "$ARCH" ] && [ -f /etc/docker-arch ] && ARCH=$(cat /etc/docker-arch)
 [ -z "$ARCH" ] && ARCH=$DEFAULT_ARCH
 
-
+# A workaroud to build image by azure image builder, if the build failed with lock issue, simply wait for a while and retry.
 apt_get_cmd()
 {
   local retry=12
   local sleep=10
+  local tmp=$(tempfile)
   set -o pipefail
   for ((i=1; i<=$retry; i++)); do
-    if apt-get "$@" | tee /tmp/dpkg.log; then
+    if /usr/bin/apt-get "$@" | tee $tmp; then
       break
     fi
 
-    if ! grep -q "Could not get lock" /tmp/dpkg.log; then
+    if ! grep -q "Could not get lock" $tmp; then
       echo "Failed install $@"
       break
     fi
@@ -27,14 +28,30 @@ apt_get_cmd()
     sleep 10
   done
   set +o pipefail
-} 
+}
 
-apt_get_cmd update
-apt_get_cmd install -y ca-certificates curl gnupg lsb-release
+alias apt-get=apt_get_cmd
+alias apt=apt_get_cmd
+
+apt-get update
+apt-get install -y ca-certificates curl gnupg lsb-release
 
 # Install build tools (and waiting docker ready)
-apt_get_cmd install -y make nfs-common python3-pip python3-setuptools
+apt-get install -y make nfs-common python3-pip python3-setuptools
 pip3 install jinja2==2.10 j2cli==0.3.10
+
+# install git lfs
+curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
+apt-get install -y git-lfs
+
+# echo creating sonic tmp account
+tmpuser=AzDevOps
+useradd -m $tmpuser
+usermod -a -G docker $tmpuser
+usermod -a -G adm $tmpuser
+usermod -a -G sudo $tmpuser
+echo "$tmpuser ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/100-$tmpuser
+chmod 440 /etc/sudoers.d/100-$tmpuser
 
 if [ "$ARCH" == "armhf" ] && [ "$ARCH" != "$DEFAULT_ARCH" ]; then
   dpkg --add-architecture armhf
@@ -44,8 +61,8 @@ mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg --batch --yes
 echo "deb [arch=$ARCH signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
 
-apt_get_cmd update
-apt_get_cmd install -y docker-ce:$ARCH docker-ce-cli:$ARCH containerd.io:$ARCH docker-compose-plugin:$ARCH
+apt-get update
+apt-get install -y docker-ce:$ARCH docker-ce-cli:$ARCH containerd.io:$ARCH docker-compose-plugin:$ARCH
 
 mkdir -p /data /work
 
