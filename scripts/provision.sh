@@ -12,6 +12,7 @@ apt_get_cmd()
 {
   local retry=12
   local sleep=10
+  set -o pipefail
   for ((i=1; i<=$retry; i++)); do
     if apt-get "$@" | tee /tmp/dpkg.log; then
       break
@@ -25,6 +26,7 @@ apt_get_cmd()
     echo "Retry for dpkg lock"
     sleep 10
   done
+  set +o pipefail
 } 
 
 apt_get_cmd update
