@@ -16,7 +16,7 @@ SecretCache.on( "expired", async function( key, value ){
 
 async function getSecretFromCache(secretName){
     if (! process.env.KEY_VAULT_NAME){
-        return rocess.env[secretName];
+        return process.env[secretName];
     }
 
     secretName = secretName.replace('_', '-');
@@ -47,6 +47,10 @@ async function getGithubToken()
     return await getSecretFromCache("GITHUB_TOKEN");
 }
 
+async function getEventhubConnectionstring()
+{
+    return await getSecretFromCache("EVENTHUB_CONNECTIONSTRING");
+}
 
 module.exports = Object.freeze({
     getAppPrivateKey: getAppPrivateKey,
@@ -54,4 +58,5 @@ module.exports = Object.freeze({
     getAzDevOpsToken: getAzDevOpsToken,
     getSecretFromCache: getSecretFromCache,
     getGithubToken: getGithubToken,
+    getEventhubConnectionstring: getEventhubConnectionstring,
 });
