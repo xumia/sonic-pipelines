@@ -32,27 +32,21 @@ async function sendEventBatch(eventDatas)
             app.log.error("Failed to add eventData");
         }
     });
-    //await producer.sendBatch(batch);
-    
-    //await producer.close();
+    await producer.sendBatch(batch);
 }
 
 function init(app)
 {
-    app.log.info('t1');
+    app.log.info('eventhub init');
     app.onAny(async (context) => {
         app.log.info({timestamp: new Date().toISOString(), event: context.name, action: context.payload.action });
+        console.log(`Log event ${context.name} ${context.payload.action} to event hubs`);
         var eventDatas = [];
         var eventData = {
-            body: {"timeStamp": "11/10/2022 11:17:44 AM", "name": "name 78", "metric": 79, "source": "EventHubMessage3"}
-        };
-        //eventDatas.push(eventData);
-        var eventData2 = {
             body: {"Timestamp": new Date().toISOString(), "Name": context.name, "Action": context.payload.action, "Payload": context.payload}
         };
-        eventDatas.push(eventData2);
+        eventDatas.push(eventData);
         await sendEventBatch(eventDatas);
-        app.log({timestamp: new Date().toISOString(), event: context.name, action: context.payload.action})
       });
 }
 
