@@ -22,6 +22,6 @@ stages:
         sudo ls -l /dev/disk/azure/scsi1
         docker run --rm debian:buster uname -m
         pwd
-
+        sudo ls -l /nfs
       displayName: test
     - template: template-showagent.yml
