@@ -19,6 +19,7 @@ stages:
         set -x
         sudo ls -l /
         sudo lsblk
+        sudo df -h
         sudo ls -l /dev/disk/azure/scsi1
         docker run --rm debian:buster uname -m
         pwd
