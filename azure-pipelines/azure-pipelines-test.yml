@@ -16,6 +16,11 @@ stages:
     timeoutInMinutes: 120
     steps:
     - script: |
+        set -x
         sudo ls -l /
+        sudo lsblk
+        sudo ls -l /dev/disk/azure/scsi1
+        pwd
+
       displayName: test
     - template: template-showagent.yml
