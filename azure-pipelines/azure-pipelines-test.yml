@@ -10,7 +10,7 @@ name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd
 
 stages:
 - stage: Build
-  pool: sonic-armhf-t2
+  pool: sonic-armhf-t3
   jobs:
   - job: Build
     timeoutInMinutes: 120
